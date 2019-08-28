@@ -28,10 +28,9 @@ class PeliculasProviders{
   }
 
   Future<List<Pelicula>> _procesarRespuesta( Uri url ) async{
+    
     final res = await http.get( url );
-
     final decodeData = json.decode(res.body);
-
     final peliculas = Peliculas.fromJsonList(decodeData['results']);
 
     return peliculas.items;
@@ -53,7 +52,6 @@ class PeliculasProviders{
     if( _cargando ) return [];
 
     _cargando = true;
-
     _popularesPage++;
 
     final url = Uri.http(_url, '3/movie/popular',{
@@ -63,11 +61,8 @@ class PeliculasProviders{
     });
 
     final resp = await _procesarRespuesta(url);
-
     _populares.addAll(resp);
-
     popularesSink( _populares );
-
     _cargando = false;
     
     return resp;
@@ -81,13 +76,23 @@ class PeliculasProviders{
     });
 
     final resp= await http.get(url);
-
     final decodeData = json.decode(resp.body);
-
     final actores = new Actores.fromJsonList(decodeData['cast']);
 
-
     return actores.actoresList;
+  }
+
+
+  Future<List<Pelicula>> buscarPelicula(String query) async {
+
+    final url = Uri.https(_url, '3/search/movie', {
+      'api_key'   : _apikey,
+      'language'  : _language,
+      'query'     : query
+    });
+
+    return await _procesarRespuesta(url);    
+
   }
 
 }
